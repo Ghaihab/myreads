@@ -11,6 +11,7 @@ class BookDetails extends Component {
             <option value="none">None</option>
         </select>
     }
+
     render() {
         return (
             <div className="book">
@@ -18,7 +19,7 @@ class BookDetails extends Component {
                     <div className="book-cover" style={{
                         width: 128,
                         height: 188,
-                        backgroundImage: 'url("http://books.google.com/books?id=bUybAgAAQBAJ&dq=android&hl=&cd=1&source=gbs_api")'
+                        backgroundImage: `url("${this.props.book.previewLink}")`
                     }}></div>
                     <div className="book-shelf-changer">
                         {this.showShelfLookup()}
@@ -27,7 +28,6 @@ class BookDetails extends Component {
                 <div className="book-title">{this.props.book.title}</div>
                 <div className="book-authors">
                     <ol>
-
                         {this.props.book.authors && this.props.book.authors.map((author) => {
                             return author;
                         }).join(', ')}
