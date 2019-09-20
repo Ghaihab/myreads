@@ -11,25 +11,53 @@ class BooksApp extends React.Component {
         super(props);
         this.state = {
             books: [],
-            booksMarket: [],
             query: '',
         }
     }
 
     changeBookSelection(theBook, newSelection) {
-        BooksAPI.update(theBook, newSelection).then(() => BooksAPI.getAll().then((books) => {
+        BooksAPI.update(theBook, newSelection).then(() => {
+            let books = this.state.books.map((book) => {
+                if (book.id === theBook.id) {
+                    book.shelf = newSelection;
+                    return book;
+                }
+                return book;
+            });
             this.setState({books});
-        }));
+        });
     }
+
+    getShelfBooks() {
+        return this.state.books.filter((book) => {
+            return book.shelf;
+        });
+    }
+
+    getBooksMarket() {
+        return this.state.books.filter((book) => {
+            return !book.shelf;
+        });
+    }
+
 
     searchBookInMarket(query) {
         this.setState({query});
-        BooksAPI.search(query).then((books) => {
-            if (books === undefined || books.hasOwnProperty('error')) {
-                this.setState({booksMarket: []});
+        BooksAPI.search(query).then((_books) => {
+
+            if (_books === undefined || _books.hasOwnProperty('error')) {
+                this.setState({books: this.getShelfBooks()});
                 return;
             }
-            this.setState({booksMarket: books});
+
+            let shelfBooksIds = this.getShelfBooks().map((book) => book.id);
+
+            _books = _books.filter((_book) => {
+                if(!shelfBooksIds.includes(_book.id)){
+                    return _book;
+                }
+            });
+            this.setState({ books: [...this.getShelfBooks(), ..._books]});
         });
     }
 
@@ -58,13 +86,13 @@ class BooksApp extends React.Component {
                                 </div>
                                 <div className="search-books-results">
                                     <ol className="books-grid">
-                                        {this.state.booksMarket.length ? this.state.booksMarket.map((book) => {
-                                            if (!book.shelf) {
-                                                book.shelf = 'none';
-                                            }
+                                        {this.getBooksMarket().map((book) => {
                                             return <BookDetails book={book} key={book.id}
-                                                                changeBookSelection={this.changeBookSelection.bind(this)}/>
-                                        }) : 'No Books Found'}
+                                                                changeBookSelection={this.changeBookSelection.bind(this)}/>;
+                                        })}
+                                        {
+                                            this.getBooksMarket().length === 0 ? 'No Books Found' : ''
+                                        }
                                     </ol>
                                 </div>
                             </React.Fragment>

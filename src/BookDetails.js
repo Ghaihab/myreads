@@ -19,7 +19,7 @@ class BookDetails extends Component {
                     <div className="book-cover" style={{
                         width: 128,
                         height: 188,
-                        backgroundImage: `url("${this.props.book.previewLink}")`
+                        backgroundImage: `url("${this.props.book.hasOwnProperty('imageLinks') ? this.props.book.imageLinks.thumbnail : ''}")`
                     }}></div>
                     <div className="book-shelf-changer">
                         {this.showShelfLookup()}
