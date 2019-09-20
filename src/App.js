@@ -16,27 +16,26 @@ class BooksApp extends React.Component {
     }
 
     changeBookSelection(theBook, newSelection) {
+
         BooksAPI.update(theBook, newSelection).then(() => {
-            let books = this.state.books.map((book) => {
-                if (book.id === theBook.id) {
-                    book.shelf = newSelection;
-                    return book;
-                }
-                return book;
+            let books = this.state.books.filter((book) => {
+               return book.id !== theBook.id;
             });
+            theBook.shelf = newSelection;
+            books.push(theBook);
             this.setState({books});
         });
     }
 
     getShelfBooks() {
         return this.state.books.filter((book) => {
-            return book.shelf;
+            return book.shelf !== 'none';
         });
     }
 
     getBooksMarket() {
         return this.state.books.filter((book) => {
-            return !book.shelf;
+            return book.shelf === 'none';
         });
     }
 
@@ -49,13 +48,9 @@ class BooksApp extends React.Component {
                 this.setState({books: this.getShelfBooks()});
                 return;
             }
-
-            let shelfBooksIds = this.getShelfBooks().map((book) => book.id);
-
-            _books = _books.filter((_book) => {
-                if(!shelfBooksIds.includes(_book.id)){
-                    return _book;
-                }
+            _books = _books.map((_book) => {
+                _book.shelf = 'none';
+                return _book;
             });
             this.setState({ books: [...this.getShelfBooks(), ..._books]});
         });
