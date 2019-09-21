@@ -11,6 +11,7 @@ class BooksApp extends React.Component {
         super(props);
         this.state = {
             books: [],
+            booksMarket: [],
             query: '',
         }
     }
@@ -27,32 +28,30 @@ class BooksApp extends React.Component {
         });
     }
 
-    getShelfBooks() {
-        return this.state.books.filter((book) => {
-            return book.shelf !== 'none';
-        });
-    }
-
-    getBooksMarket() {
-        return this.state.books.filter((book) => {
-            return book.shelf === 'none';
-        });
-    }
-
-
     searchBookInMarket(query) {
         this.setState({query});
         BooksAPI.search(query).then((_books) => {
 
             if (_books === undefined || _books.hasOwnProperty('error')) {
-                this.setState({books: this.getShelfBooks()});
+                this.setState({ booksMarket: []});
                 return;
             }
+
             _books = _books.map((_book) => {
+                let founded = this.state.books.find((book) => {
+                    return book.id === _book.id;
+                });
+
+                if(founded){
+                    _book.shelf = founded.shelf;
+                    return _book;
+                }
+
                 _book.shelf = 'none';
                 return _book;
             });
-            this.setState({ books: [...this.getShelfBooks(), ..._books]});
+
+            this.setState({ booksMarket: _books});
         });
     }
 
@@ -81,12 +80,12 @@ class BooksApp extends React.Component {
                                 </div>
                                 <div className="search-books-results">
                                     <ol className="books-grid">
-                                        {this.getBooksMarket().map((book) => {
+                                        {this.state.booksMarket.map((book) => {
                                             return <BookDetails book={book} key={book.id}
                                                                 changeBookSelection={this.changeBookSelection.bind(this)}/>;
                                         })}
                                         {
-                                            this.getBooksMarket().length === 0 ? 'No Books Found' : ''
+                                            this.state.booksMarket.length === 0 ? 'No Books Found' : ''
                                         }
                                     </ol>
                                 </div>
